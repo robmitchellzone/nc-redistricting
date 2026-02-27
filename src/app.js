@@ -54,6 +54,8 @@ function myViz(data) {
     .attr('class', 'map')
     .attr('width', width)
     .attr('height', height);
+  // Reuse one layer so map redraws replace paths instead of stacking groups.
+  const state = svg.append('g').attr('id', 'state');
 
   function myMap(values) {
     // draw the actual map
@@ -63,13 +65,12 @@ function myViz(data) {
         row['year'] === values['year'] && row['chamber'] === values['chamber'],
     );
     const colorArray = thisYear.map(row => color(row['dem_percent']));
-    const state = svg.append('g').attr('id', 'state');
     state
       .selectAll('path')
       .data(newData.features)
       .join('path')
       .attr('d', geoGenerator)
-      .attr('id', 'district')
+      .attr('class', 'district')
       .attr('fill', d => colorArray[d['properties']['District'] - 1])
       .attr('stroke', '#000')
       .on('mouseover', mouseover)
@@ -136,7 +137,8 @@ function myViz(data) {
 
   // credit to stephenspann https://stackoverflow.com/a/24225000
   select('#year-chamber').on('change', function() {
-    const values = datasetMap[eval(select(this).property('value'))];
+    const selectedIndex = Number(select(this).property('value'));
+    const values = datasetMap[selectedIndex];
     myMap(values);
   });
 }
@@ -156,4 +158,10 @@ Promise.all([
   csv('./data/final/full_df.csv'),
 ]).then(maps => {
   myViz(maps);
+}).catch(error => {
+  console.error('Failed to load visualization data:', error);
+  select('#app')
+    .append('p')
+    .style('color', '#b00020')
+    .text('Unable to load map data. Please refresh and try again.');
 });
