@@ -122,13 +122,13 @@ function myViz(data) {
     .attr('x', 160)
     .attr('y', 285);
   // tooltip functions
-  const mouseover = function(_) {
+  const mouseover = function() {
     toolTip.style('opacity', 1);
   };
   const mousemove = function(d) {
     toolTip.text('District ' + d.target.__data__.properties.District);
   };
-  const mouseleave = function(_) {
+  const mouseleave = function() {
     toolTip.style('opacity', 0);
   };
 
@@ -155,6 +155,5 @@ Promise.all([
   json('./data/final/s20.json'),
   csv('./data/final/full_df.csv'),
 ]).then(maps => {
-  const [r0, r1, r2, r3, r4, r5, r6, r7, r8, r9, r10, r11] = maps;
   myViz(maps);
 });

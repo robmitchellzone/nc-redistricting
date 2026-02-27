@@ -4,6 +4,11 @@ module.exports = {
   entry: {
     app: './src/app.js',
   },
+  devServer: {
+    static: {
+      directory: path.join(__dirname, './'),
+    },
+  },
   module: {
     rules: [
       {
@@ -15,7 +20,7 @@ module.exports = {
         loader: 'babel-loader',
         exclude: [/node_modules/],
         options: {
-          presets: ['es2017'],
+          presets: ['@babel/preset-env'],
         },
       },
     ],
