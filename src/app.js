@@ -100,6 +100,16 @@ const PARTY_LABELS = ['Republican vote', 'Democratic vote'];
 const DATA_FILES = MAP_SOURCE_KEYS.map(sourceKey => MAP_SOURCE_FILES[sourceKey]);
 
 /**
+ * @param {ElectionViewSpec} spec
+ * @returns {string}
+ */
+function formatViewLabel(spec) {
+  const yearLabel = spec.year.slice(0, 4);
+  const chamberLabel = spec.chamber === 'house' ? 'House' : 'Senate';
+  return `${yearLabel} ${chamberLabel}`;
+}
+
+/**
  * Build a dictionary of election views keyed by chamber-year code (for example,
  * 02H or 18S). Each view keeps the same raw result-row ordering used by the
  * original app so district colors render exactly as before.
@@ -322,6 +332,22 @@ function bindSelectionControl(onSelectionChange) {
 }
 
 /**
+ * Build the select options from the same app configuration used for rendering
+ * so the UI order and the data model cannot drift apart.
+ *
+ * @returns {void}
+ */
+function renderSelectionOptions() {
+  select('#year-chamber')
+    .selectAll('option')
+    .data(ELECTION_VIEW_SPECS)
+    .join('option')
+    .attr('value', spec => spec.key)
+    .property('selected', spec => spec.key === DEFAULT_VIEW_KEY)
+    .text(spec => formatViewLabel(spec));
+}
+
+/**
  * @param {Array<MapGeoJson|Array<ResultRow>>} loadedData
  * @returns {void}
  */
@@ -345,6 +371,7 @@ function initializeApp(loadedData) {
     tooltipHandlers,
   });
 
+  renderSelectionOptions();
   renderMap(DEFAULT_VIEW_KEY);
   bindSelectionControl(renderMap);
 }

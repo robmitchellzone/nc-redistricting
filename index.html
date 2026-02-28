@@ -1,18 +1,18 @@
 <!DOCTYPE html>
 <html lang="en">
   <head>
-    <meta charset="utf-8">
+    <meta charset="utf-8" />
     <title>NC Redistricting</title>
   </head>
-  <body class=holy-grail>
+  <body class="holy-grail">
     <header>
       <h2>Redistricting in North Carolina – 2002 to 2020</h2>
       <h3>Use the dropdown box on the left to select a legislative map to view</h3>
     </header>
-    <div class='holy-grail-body'>
-      <main class='holy-grail-content'>
+    <div class="holy-grail-body">
+      <main class="holy-grail-content">
         <div id="app"></div>
-        <div class='writeup'>
+        <div class="writeup">
           <h3>What Is Redistricting?</h3>
           <p>
             Redistricting is the process of creating geographic areas — known
@@ -40,34 +40,13 @@
           </p>
         </div>
       </main>
-      <nav class='holy-grail-nav'>
+      <nav class="holy-grail-nav">
         <div id="dropdown">
-          <div>Select a Map</div>
-          <select id="year-chamber">
-            <option value="02H" selected>2002 House</option>
-            <option value="02S">2002 Senate</option>
-            <option value="04H">2004 House</option>
-            <option value="04S">2004 Senate</option>
-            <option value="06H">2006 House</option>
-            <option value="06S">2006 Senate</option>
-            <option value="08H">2008 House</option>
-            <option value="08S">2008 Senate</option>
-            <option value="10H">2010 House</option>
-            <option value="10S">2010 Senate</option>
-            <option value="12H">2012 House</option>
-            <option value="12S">2012 Senate</option>
-            <option value="14H">2014 House</option>
-            <option value="14S">2014 Senate</option>
-            <option value="16H">2016 House</option>
-            <option value="16S">2016 Senate</option>
-            <option value="18H">2018 House</option>
-            <option value="18S">2018 Senate</option>
-            <option value="20H">2020 House</option>
-            <option value="20S">2020 Senate</option>
-          </select>
+          <label for="year-chamber" id="year-chamber-label">Select a Map</label>
+          <select id="year-chamber" name="year-chamber" aria-labelledby="year-chamber-label"></select>
         </div>
       </nav>
-      <aside class='holy-grail-aside'>
+      <aside class="holy-grail-aside">
         <h3>Sources:</h3>
         <p>Election results: <a href="https://er.ncsbe.gov/downloads.html">https://er.ncsbe.gov/downloads.html</a></p>
         <p>Maps: <a href="https://www.ncleg.gov/Redistricting">https://www.ncleg.gov/Redistricting</a></p>
