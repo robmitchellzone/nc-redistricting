@@ -118,8 +118,10 @@ function formatViewLabel(spec) {
  * @returns {Record<string, ElectionView>}
  */
 function createViewsByKey(loadedData) {
-  const loadedMaps = loadedData.slice(0, MAP_SOURCE_KEYS.length);
-  const results = loadedData[MAP_SOURCE_KEYS.length];
+  const loadedMaps = /** @type {Array<MapGeoJson>} */ (
+    loadedData.slice(0, MAP_SOURCE_KEYS.length)
+  );
+  const results = /** @type {Array<ResultRow>} */ (loadedData[MAP_SOURCE_KEYS.length]);
   /** @type {Record<string, MapGeoJson>} */
   const mapsBySourceKey = {};
   /** @type {Record<string, Array<ResultRow>>} */
@@ -376,7 +378,16 @@ function initializeApp(loadedData) {
   bindSelectionControl(renderMap);
 }
 
-Promise.all([...DATA_FILES.map(path => json(path)), csv('./data/final/full_df.csv')])
+/**
+ * @returns {Promise<Array<MapGeoJson|Array<ResultRow>>>}
+ */
+function loadAppData() {
+  return /** @type {Promise<Array<MapGeoJson|Array<ResultRow>>>} */ (
+    Promise.all([...DATA_FILES.map(path => json(path)), csv('./data/final/full_df.csv')])
+  );
+}
+
+loadAppData()
   .then(loadedData => {
     initializeApp(loadedData);
   })

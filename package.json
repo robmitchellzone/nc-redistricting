@@ -18,6 +18,7 @@
     "eslint-plugin-prettier": "^5.2.3",
     "prettier": "^3.5.2",
     "style-loader": "^4.0.0",
+    "typescript": "^5.8.2",
     "webpack": "^5.98.0",
     "webpack-cli": "^6.0.1",
     "webpack-dev-server": "^5.2.0"
@@ -33,7 +34,8 @@
   "scripts": {
     "start": "webpack serve --mode development",
     "build": "NODE_ENV=production webpack",
-    "lint": "eslint ."
+    "lint": "eslint .",
+    "typecheck": "tsc --project tsconfig.json"
   },
   "babel": {
     "presets": [
