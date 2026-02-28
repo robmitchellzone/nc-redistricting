@@ -1,3 +1,4 @@
+// @ts-check
 import './main.css';
 import {select} from 'd3-selection';
 import {geoMercator, geoPath} from 'd3-geo';
@@ -91,7 +92,7 @@ const ELECTION_VIEW_SPECS = [
   {key: '20H', year: '2020-01-01', chamber: 'house', mapSourceKey: 'h20'},
   {key: '20S', year: '2020-01-01', chamber: 'senate', mapSourceKey: 's20'},
 ];
-const VIEW_ORDER = ELECTION_VIEW_SPECS.map(spec => spec.key);
+const DEFAULT_VIEW_KEY = ELECTION_VIEW_SPECS[0].key;
 const LEGEND_KEYS = ['90%', '80%', '70%', '60%', '50%', '50%', '60%', '70%', '80%', '90%'];
 const LEGEND_VALUES = [0, 0.1, 0.2, 0.3, 0.4, 0.5, 0.6, 0.7, 0.8, 0.9];
 const PARTY_LABELS = ['Republican vote', 'Democratic vote'];
@@ -111,9 +112,22 @@ function createViewsByKey(loadedData) {
   const results = loadedData[MAP_SOURCE_KEYS.length];
   /** @type {Record<string, MapGeoJson>} */
   const mapsBySourceKey = {};
+  /** @type {Record<string, Array<ResultRow>>} */
+  const resultsByViewKey = {};
 
   MAP_SOURCE_KEYS.forEach((sourceKey, index) => {
     mapsBySourceKey[sourceKey] = loadedMaps[index];
+  });
+
+  ELECTION_VIEW_SPECS.forEach(spec => {
+    resultsByViewKey[spec.key] = [];
+  });
+
+  results.forEach(row => {
+    const viewKey = `${row.year.slice(2, 4)}${row.chamber === 'house' ? 'H' : 'S'}`;
+    if (resultsByViewKey[viewKey]) {
+      resultsByViewKey[viewKey].push(row);
+    }
   });
 
   /** @type {Record<string, ElectionView>} */
@@ -125,9 +139,7 @@ function createViewsByKey(loadedData) {
       year: spec.year,
       chamber: spec.chamber,
       mapGeoJson: mapsBySourceKey[spec.mapSourceKey],
-      results: results.filter(
-        row => row['year'] === spec.year && row['chamber'] === spec.chamber,
-      ),
+      results: resultsByViewKey[spec.key],
     };
   });
 
@@ -276,7 +288,12 @@ function createMapRenderer(config) {
    */
   return function renderMap(viewKey) {
     const electionView = viewsByKey[viewKey];
-    const colorArray = electionView.results.map(row => color(Number(row['dem_percent'])));
+    if (!electionView) {
+      console.error(`No election view found for key: ${viewKey}`);
+      return;
+    }
+
+    const colorArray = electionView.results.map(row => color(Number(row.dem_percent)));
 
     state
       .selectAll('path')
@@ -284,7 +301,7 @@ function createMapRenderer(config) {
       .join('path')
       .attr('d', geoGenerator)
       .attr('class', 'district')
-      .attr('fill', d => colorArray[d['properties']['District'] - 1])
+      .attr('fill', d => colorArray[d.properties.District - 1])
       .attr('stroke', '#000')
       .on('mouseover', tooltipHandlers.mouseover)
       .on('mousemove', tooltipHandlers.mousemove)
@@ -299,8 +316,7 @@ function createMapRenderer(config) {
 function bindSelectionControl(onSelectionChange) {
   // credit to stephenspann https://stackoverflow.com/a/24225000
   select('#year-chamber').on('change', function() {
-    const selectedIndex = Number(select(this).property('value'));
-    const viewKey = VIEW_ORDER[selectedIndex];
+    const viewKey = String(select(this).property('value'));
     onSelectionChange(viewKey);
   });
 }
@@ -314,7 +330,7 @@ function initializeApp(loadedData) {
   const color = createColorScale();
   const svg = createSvg();
   const state = createStateLayer(svg);
-  const geoGenerator = createGeoGenerator(viewsByKey[VIEW_ORDER[0]].mapGeoJson);
+  const geoGenerator = createGeoGenerator(viewsByKey[DEFAULT_VIEW_KEY].mapGeoJson);
 
   // legend is the same so no need to update
   renderLegend(svg, color);
@@ -329,7 +345,7 @@ function initializeApp(loadedData) {
     tooltipHandlers,
   });
 
-  renderMap(VIEW_ORDER[0]);
+  renderMap(DEFAULT_VIEW_KEY);
   bindSelectionControl(renderMap);
 }
 
