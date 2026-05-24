@@ -1,6 +1,6 @@
 # North Carolina Redistricting
 
-View the interactive visualization here: https://robmitchellzone.github.io/nc-redistricing/.
+View the interactive visualization here: https://robmitchellzone.github.io/nc-redistricting/.
 
 Data sources: NC Legislature, NC Board of Elections
 
