@@ -305,6 +305,8 @@ function createMapRenderer(config) {
       return;
     }
 
+    updateActiveSelectionControl(viewKey);
+
     const colorArray = electionView.results.map(row => color(Number(row.dem_percent)));
 
     state
@@ -325,28 +327,48 @@ function createMapRenderer(config) {
  * @param {(viewKey: string) => void} onSelectionChange
  * @returns {void}
  */
-function bindSelectionControl(onSelectionChange) {
-  // credit to stephenspann https://stackoverflow.com/a/24225000
-  select('#year-chamber').on('change', function() {
-    const viewKey = String(select(this).property('value'));
-    onSelectionChange(viewKey);
+function bindSelectionControls(onSelectionChange) {
+  select('#map-picker').on('click', event => {
+    const target = /** @type {HTMLElement|null} */ (event.target instanceof HTMLElement ? event.target : null);
+    const button = target ? target.closest('button[data-view-key]') : null;
+    if (!button) return;
+
+    const viewKey = button.getAttribute('data-view-key');
+    if (viewKey) onSelectionChange(viewKey);
   });
 }
 
 /**
- * Build the select options from the same app configuration used for rendering
+ * Build the map-picker buttons from the same app configuration used for rendering
  * so the UI order and the data model cannot drift apart.
  *
  * @returns {void}
  */
-function renderSelectionOptions() {
-  select('#year-chamber')
-    .selectAll('option')
+function renderSelectionControls() {
+  select('#map-picker')
+    .selectAll('button')
     .data(ELECTION_VIEW_SPECS)
-    .join('option')
-    .attr('value', spec => spec.key)
-    .property('selected', spec => spec.key === DEFAULT_VIEW_KEY)
+    .join('button')
+    .attr('type', 'button')
+    .attr('class', spec => (
+      spec.key === DEFAULT_VIEW_KEY ? 'map-picker-button is-active' : 'map-picker-button'
+    ))
+    .attr('data-view-key', spec => spec.key)
+    .attr('aria-pressed', spec => String(spec.key === DEFAULT_VIEW_KEY))
     .text(spec => formatViewLabel(spec));
+}
+
+/**
+ * @param {string} activeViewKey
+ * @returns {void}
+ */
+function updateActiveSelectionControl(activeViewKey) {
+  select('#map-picker')
+    .selectAll('button')
+    .attr('class', spec => (
+      spec.key === activeViewKey ? 'map-picker-button is-active' : 'map-picker-button'
+    ))
+    .attr('aria-pressed', spec => String(spec.key === activeViewKey));
 }
 
 /**
@@ -373,9 +395,9 @@ function initializeApp(loadedData) {
     tooltipHandlers,
   });
 
-  renderSelectionOptions();
+  renderSelectionControls();
   renderMap(DEFAULT_VIEW_KEY);
-  bindSelectionControl(renderMap);
+  bindSelectionControls(renderMap);
 }
 
 /**
